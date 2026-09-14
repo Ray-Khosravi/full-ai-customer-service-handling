@@ -182,7 +182,6 @@ docs/                   operations runbook, hero animation
 
 <div dir="rtl" align="right">
 
-## به فارسی
 
 
 </div>
