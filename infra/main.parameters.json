@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "principalId": {
+      "value": "${AZURE_PRINCIPAL_ID}"
+    },
+    "vnetEnabled": {
+      "value": "${VNET_ENABLED}"
+    },
+    "serviceManagementReference": {
+      "value": "${SERVICE_MANAGEMENT_REFERENCE}"
+    },
+    "preAuthorizedClientIds": {
+      "value": "${PRE_AUTHORIZED_CLIENT_IDS}"
+    },
+    "graphClientId": {
+      "value": "${GRAPH_CLIENT_ID}"
+    },
+    "unauthenticatedClientAction": {
+      "value": "${UNAUTHENTICATED_CLIENT_ACTION=AllowAnonymous}"
+    },
+    "smsProvider": {
+      "value": "${SMS_PROVIDER=mock}"
+    },
+    "smsWebhookSecret": {
+      "value": "${SMS_WEBHOOK_SECRET}"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+.venv
+.azure
+__pycache__
+CLAUDE_CODE_HANDOFF.md
+local.settings.json
+tests

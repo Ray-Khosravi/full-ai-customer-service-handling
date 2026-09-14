@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexroza Plumbing — chat test client</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --muted:#5b6470; --brand:#0b5fff; --bad:#b42318; --line:#e3e6ea; }
+  * { box-sizing:border-box } body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink) }
+  .page { max-width:720px; margin:0 auto; padding:16px }
+  h1 { font-size:20px; margin:8px 0 } p.note { color:var(--muted); font-size:13px }
+  #launcher { position:fixed; right:16px; bottom:16px; border:0; border-radius:999px; background:var(--brand); color:#fff; padding:14px 18px; font-size:15px; box-shadow:0 6px 20px rgba(0,0,0,.2); cursor:pointer }
+  #panel { position:fixed; right:16px; bottom:16px; width:min(420px, calc(100vw - 32px)); height:min(640px, calc(100vh - 32px)); background:var(--card); border:1px solid var(--line); border-radius:16px; display:none; flex-direction:column; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.25) }
+  #panel.open { display:flex } @media (max-width:520px){ #panel{ inset:0; width:100%; height:100%; border-radius:0 } }
+  header { padding:12px 14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center }
+  header b { font-size:15px } header button { border:0; background:none; font-size:18px; cursor:pointer }
+  #log { flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:8px }
+  .msg { max-width:88%; padding:10px 12px; border-radius:14px; white-space:pre-wrap; word-wrap:break-word }
+  .me { align-self:flex-end; background:var(--brand); color:#fff; border-bottom-right-radius:4px }
+  .bot { align-self:flex-start; background:#eef1f5; border-bottom-left-radius:4px }
+  .sys { align-self:center; color:var(--muted); font-size:12px } .err { color:var(--bad) }
+  .ref { display:inline-block; margin-top:6px; padding:4px 8px; border:1px dashed var(--brand); border-radius:8px; font-family:ui-monospace,monospace; cursor:pointer }
+  form { display:flex; gap:8px; padding:10px; border-top:1px solid var(--line) }
+  textarea { flex:1; resize:none; border:1px solid var(--line); border-radius:10px; padding:10px; font:inherit; height:44px }
+  form button { border:0; border-radius:10px; background:var(--brand); color:#fff; padding:0 16px; font-weight:600; cursor:pointer } form button[disabled]{ opacity:.5 }
+  #consent { padding:14px; font-size:13px; color:var(--muted); border-bottom:1px solid var(--line) } #consent button { margin-top:8px; border:0; background:var(--brand); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer }
+  .hp { position:absolute; left:-9999px }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Nexroza Plumbing — chat widget test client</h1>
+  <p class="note">Reference implementation of <code>web/INTEGRATION.md</code>. The browser only talks to <code>/api/chat</code>; all credentials stay on the server.</p>
+</div>
+
+<button id="launcher" aria-label="Open chat">💬 Chat with us</button>
+
+<section id="panel" role="dialog" aria-label="Nexroza chat">
+  <header><b>Nexroza Plumbing</b><button id="close" aria-label="Close">✕</button></header>
+  <div id="consent">
+    To dispatch a technician we collect your name, phone number, service address and a short description of the issue. We may contact technicians by SMS about your request. No Microsoft sign-in is needed. See our privacy policy.
+    <br><button id="agree">I understand — start chat</button>
+  </div>
+  <div id="log" aria-live="polite"></div>
+  <form id="f" hidden>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off">
+    <textarea id="t" maxlength="1000" placeholder="Describe your plumbing issue…" required></textarea>
+    <button id="send" type="submit">Send</button>
+  </form>
+</section>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const panel = $('#panel'), log = $('#log'), form = $('#f'), input = $('#t'), sendBtn = $('#send');
+  let session = sessionStorage.getItem('nx_session') || '';
+  let busy = false;
+
+  $('#launcher').onclick = () => { panel.classList.add('open'); input.focus(); };
+  $('#close').onclick = () => panel.classList.remove('open');
+  $('#agree').onclick = () => { $('#consent').hidden = true; form.hidden = false; add('bot', "Hi! I'm the Nexroza assistant. Tell me what's going on with your plumbing, or ask about technician availability."); input.focus(); };
+
+  function add(kind, text) {
+    const div = document.createElement('div'); div.className = 'msg ' + kind; div.textContent = text;
+    const ref = kind === 'bot' && text.match(/NX-[A-Z0-9]{8,16}/);
+    if (ref) { const r = document.createElement('span'); r.className = 'ref'; r.textContent = 'Check status: ' + ref[0]; r.title = 'Ask for the status of this request';
+      r.onclick = () => { input.value = `What's the status of ${ref[0]}? My phone ends in ____`; input.focus(); }; div.appendChild(document.createElement('br')); div.appendChild(r); }
+    log.appendChild(div); log.scrollTop = log.scrollHeight; return div;
+  }
+
+  async function send(text) {
+    busy = true; sendBtn.disabled = true; input.disabled = true;
+    add('me', text); const wait = add('sys', 'Thinking…');
+    try {
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: session, message: text, website: form.website.value }) });
+      const data = await res.json().catch(() => ({}));
+      wait.remove();
+      if (data.session_id) { session = data.session_id; sessionStorage.setItem('nx_session', session); }
+      if (res.ok) add('bot', data.reply || '…');
+      else if (res.status === 429) add('sys err', data.reply || 'Too many messages, please wait.');
+      else add('sys err', (data.reply || 'The assistant is unavailable right now. Please call our office.') + '  Tap Send to retry.');
+    } catch (e) { wait.remove(); add('sys err', navigator.onLine ? 'Connection problem. Please try again.' : 'You appear to be offline.'); }
+    busy = false; sendBtn.disabled = false; input.disabled = false; input.focus();
+  }
+
+  form.onsubmit = e => { e.preventDefault(); const text = input.value.trim(); if (!text || busy) return; input.value = ''; send(text); };
+  input.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } };
+})();
+</script>
+</body>
+</html>

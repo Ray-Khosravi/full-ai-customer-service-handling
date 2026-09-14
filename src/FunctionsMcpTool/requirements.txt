@@ -1,0 +1,17 @@
+# Azure Functions runtime (MCP tool trigger decorators)
+azure-functions>=2.2.0b3
+
+# Microsoft Graph authentication (public client, silent refresh only)
+msal
+requests
+
+# Secure token storage in Azure Blob Storage via managed identity
+azure-storage-blob
+azure-identity
+
+# Toronto timezone support
+tzdata
+
+# Service-request store and async queues (same storage account, managed identity)
+azure-data-tables
+azure-storage-queue

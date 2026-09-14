@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget</title>
+    <style>
+        :root {
+            --bg: linear-gradient(145deg, #0f172a 0%, #0b324f 50%, #0f766e 100%);
+            --card: rgba(255,255,255,0.1);
+            --text: #f8fafc;
+            --muted: #cbd5e1;
+            --accent: #fbbf24;
+            --shadow: 0 20px 50px rgba(0,0,0,0.35);
+            --radius: 18px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .widget {
+            width: min(640px, 100%);
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.08);
+            display: grid;
+            place-items: center;
+            font-size: 44px;
+        }
+        .title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .label { color: var(--muted); font-size: 0.85rem; margin: 0 0 6px; }
+        .value { margin: 0; font-size: 1.1rem; font-weight: 600; }
+        .city-selector {
+            margin-bottom: 16px;
+        }
+        .city-select {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: var(--text);
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23cbd5e1' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .city-select:hover, .city-select:focus {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--accent);
+            outline: none;
+        }
+        .city-select option {
+            background: #1e293b;
+            color: var(--text);
+        }
+        .loading .header .icon { animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.4 } }
+        .footer {
+            margin-top: 12px;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="widget" id="widget">
+        <div class="city-selector" id="city-selector"></div>
+        <div class="header">
+            <div class="icon" id="weather-icon">🌤️</div>
+            <div>
+                <p class="title" id="location">Weather</p>
+                <p class="subtitle" id="condition">Waiting for tool output…</p>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <p class="label">Temperature</p>
+                <p class="value" id="temperature">—</p>
+            </div>
+            <div class="card">
+                <p class="label">Humidity</p>
+                <p class="value" id="humidity">—</p>
+            </div>
+            <div class="card">
+                <p class="label">Wind</p>
+                <p class="value" id="wind">—</p>
+            </div>
+        </div>
+        <div class="footer" id="footer">Connecting...</div>
+    </div>
+    <script type="module" src="/weather-app.ts"></script>
+</body>
+</html>
