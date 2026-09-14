@@ -192,3 +192,5 @@ pending-*-flow.json
 CLAUDE_CODE_HANDOFF.md
 CLAUDE_CODE_COMPLETE_MVP_PROMPT.md
 deploy.env
+docs/out/frames/
+docs/out/frame.html

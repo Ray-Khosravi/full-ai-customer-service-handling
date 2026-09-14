@@ -56,7 +56,7 @@
     <rect x="56" y="362" width="250" height="26" rx="13" fill="#0f5132"/>
     <text x="68" y="379" font-size="12" fill="#b7f7d0">Michael proposed Mon 5:30 PM — confirm?</text>
   </g>
-  <g class="typing" transform="translate(64 380)">
+  <g class="typing" transform="translate(290 122)">
     <circle cx="6" cy="0" r="3" fill="#9fb3d1"/><circle cx="16" cy="0" r="3" fill="#9fb3d1"/><circle cx="26" cy="0" r="3" fill="#9fb3d1"/>
   </g>
 
